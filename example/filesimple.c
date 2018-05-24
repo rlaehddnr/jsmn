@@ -55,8 +55,30 @@ char* readJSONFile(){
 // 	}
 
 // Example 5
+// void jsonNameList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex){
+// 	int num = 1;
+// 	int i = 0;
+// 	while(i < tokcount){
+// 		if(t[i].type == JSMN_STRING && t[i].size >= 1){
+// 			nameTokIndex[num] = i;
+// 			num++;
+// 		}
+// 		i++;
+// 	}
+// 	nameTokIndex[0]= num-1;
+// }
+// void printNameList(char *jsonstr, jsmntok_t *t, int *nameTokIndex){
+// 	int i = 1;
+// 	printf("-----Name List-----\n");
+// 	while(i <= nameTokIndex[0]){
+// 		printf("[NAME%2d] %.*s\n", i, t[nameTokIndex[i]].end - t[nameTokIndex[i]].start, jsonstr + t[nameTokIndex[i]].start);
+// 		i++;
+// 	}
+// }
+
+//Example 6
 void jsonNameList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex){
-	int num = 1;
+	int num = 2;
 	int i = 0;
 	while(i < tokcount){
 		if(t[i].type == JSMN_STRING && t[i].size >= 1){
@@ -65,17 +87,29 @@ void jsonNameList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex){
 		}
 		i++;
 	}
-	nameTokIndex[0]= num-1;
-	printf("size = %d\n", nameTokIndex[0]);
+	nameTokIndex[0] = num - 1;
+	nameTokIndex[1] = 0; //name no 를 이용하기위한 index
 }
-void printNameList(char *jsonstr, jsmntok_t *t, int *nameTokIndex){
-	int i = 1;
-	printf("-----Name List-----\n");
-	while(i <= nameTokIndex[0]){
-		printf("[NAME%2d] %.*s\n", i, t[nameTokIndex[i]].end - t[nameTokIndex[i]].start, jsonstr + t[nameTokIndex[i]].start);
-		i++;
+void selectNameList(char *jsonstr, jsmntok_t *t, int *nameTokIndex){
+	while(1){
+		int number;
+		int valueTok;
+
+		printf("Select Name's no (exit : 0) >> ");
+		scanf("%d", &number);
+		if(number == 0)
+			break;		//exit
+		int index = number + 1;
+		printf("[NAME%2d] %.*s\n", number , t[nameTokIndex[index]].end - t[nameTokIndex[index]].start, jsonstr + t[nameTokIndex[index]].start);
+
+
+			valueTok = nameTokIndex[index] + 1;
+			printf("%.*s\n", t[valueTok].end - t[valueTok].start, jsonstr + t[valueTok].start);
+			
+
 	}
 }
+
 int main() {
 	char* string;
 	char* jsonstr;
@@ -140,12 +174,11 @@ int main() {
 	//jsonNameList(string, t, r);
 
 	//Example 5
-	// int count = jsonNameList(string, t, r, array);
-	// printNameList(string, t, array, count);
+	// jsonNameList(string, t, r, array);
+	// printNameList(string, t, array);
 
-	int nameTokIndex[100];
-	jsonNameList(string, t, r, nameTokIndex);
-	printNameList(string, t, nameTokIndex);
-
+	//Example 6
+	jsonNameList(string, t, r, array);
+	selectNameList(string, t, array);
 	return EXIT_SUCCESS;
 }
