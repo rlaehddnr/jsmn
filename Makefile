@@ -7,7 +7,7 @@ libjsmn.a: jsmn.o
 	$(AR) rc $@ $^
 
 %.o: %.c jsmn.h
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -DJSMN_PARENT_LINKS -c $(CFLAGS) $< -o $@
 
 test: test_default test_strict test_links test_strict_links
 test_default: test/tests.c
@@ -28,7 +28,10 @@ jsmn_test.o: jsmn_test.c libjsmn.a
 simple_example: example/simple.o libjsmn.a
 	$(CC) $(LDFLAGS) $^ -o $@
 
-filesimple_example: example/filesimple.o libjsmn.a
+filesimple: example/filesimple.o libjsmn.a
+	$(CC) $(LDFLAGS) $^ -o $@
+
+fs: example/filesimple2.o libjsmn.a
 	$(CC) $(LDFLAGS) $^ -o $@
 
 jsondump: example/jsondump.o libjsmn.a
@@ -38,7 +41,8 @@ clean:
 	rm -f *.o example/*.o
 	rm -f *.a *.so
 	rm -f simple_example
-	rm -f filesimple_example
+	rm -f filesimple
 	rm -f jsondump
+	rm -f fs
 
 .PHONY: all clean test
