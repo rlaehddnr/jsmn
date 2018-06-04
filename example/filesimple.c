@@ -158,24 +158,88 @@ char* readJSONFile(){
 // 	}
 // }
 
-// Example 8
 #define JSMN_PARENT_LINKS
+// Example 8
+// void jsonObjectList(char *jsonstr, jsmntok_t *t, int tokcount, int *objectTokIndex){
+// 	int i = 1;
+// 	int j = 1;
+// 	printf("****** Object List ******\n");
+// 	while(i < tokcount){
+// 		if(t[i].size >= 1 && t[i].type == JSMN_OBJECT){	//객체의 첫번째 데이터 value
+// 			if(t[i].parent == 2){	// object 안의 또 다른 object를 거르기 위한 조건
+// 			objectTokIndex[j] = i + 2;
+// 			printf("[NAME%2d] %.*s\n", j, t[objectTokIndex[j]].end - t[objectTokIndex[j]].start, jsonstr + t[objectTokIndex[j]].start);
+// 			j++;
+// 			}
+// 		}
+// 		i++;
+// 	}
+// 	objectTokIndex[0] = j - 1;	//각 객체의 첫 번째 데이터의 개수
+// }
 
-void jsonObjectList(char *jsonstr, jsmntok_t *t, int tokcount, int *objectTokIndex){
+// Example 9
+void jsonObjectList(char *jsonstr, jsmntok_t *t, int tokcount, int *objectTokIndex, int *valueTokIndex){
 	int i = 1;
 	int j = 1;
+	int k = 1;
 	printf("****** Object List ******\n");
 	while(i < tokcount){
 		if(t[i].size >= 1 && t[i].type == JSMN_OBJECT){	//객체의 첫번째 데이터 value
 			if(t[i].parent == 2){	// object 안의 또 다른 object를 거르기 위한 조건
-			objectTokIndex[j] = i + 2;
-			printf("[NAME%2d] %.*s\n", j, t[objectTokIndex[j]].end - t[objectTokIndex[j]].start, jsonstr + t[objectTokIndex[j]].start);
-			j++;
+				objectTokIndex[j] = i;
+				// 저장된 수에 +2 를 해주어야 첫 오브젝트의 value값이 나오게 된다.
+				printf("[NAME%2d] %.*s\n", j, t[objectTokIndex[j]+2].end - t[objectTokIndex[j]+2].start, jsonstr + t[objectTokIndex[j]+2].start);
+				j++;
 			}
 		}
+		// value tok 값을 저장해줘야함
+		// 안해도 될듯?
+		if(t[i].size >= 1 && t[i].type == JSMN_STRING){	//객체의 첫번째 데이터 value
+			valueTokIndex[k] = i;
+				// 저장된 수에 +2 를 해주어야 첫 오브젝트의 value값이 나오게 된다.
+				// printf("[Value%2d] %.*s\n", k, t[valueTokIndex[k]].end - t[valueTokIndex[k]].start, jsonstr + t[valueTokIndex[k]].start);
+				k++;
+			}
 		i++;
 	}
 	objectTokIndex[0] = j - 1;	//각 객체의 첫 번째 데이터의 개수
+	valueTokIndex[0] = k - 1;
+}
+void selectObject(char *jsonstr, jsmntok_t *t, int tokcount,int *objectTokIndex, int *valueTokIndex){
+	int num = 0;
+	int valueCount = 0;
+
+	printf("---------------------------------\n");
+
+	while(1){
+	int i = 2;
+	printf("원하는 번호 입력 (exit : 0) ");
+	scanf("%d", &num);
+	if(num == 0) break;
+
+		else if(num > objectTokIndex[0]){
+			printf("Too big\n");
+		}
+		else if(num > 0){
+						// printf("%.*s : %.*s\n", t[valueTokIndex[num-1]].end - t[valueTokIndex[num-1]].start, jsonstr + t[valueTokIndex[num-1]].start, t[valueTokIndex[num]].end-t[valueTokIndex[num]].start, jsonstr + t[valueTokIndex[num]].start);
+
+			while(t[valueTokIndex[num+i]].end <= t[objectTokIndex[num]].end){
+					printf("[%.*s]", t[valueTokIndex[i]].end - t[valueTokIndex[i]].start, jsonstr + t[valueTokIndex[i]].start);
+					printf("%.*s\n", t[valueTokIndex[i]+1].end - t[valueTokIndex[i]+1].start, jsonstr + t[valueTokIndex[i]+1].start);
+
+					i++;
+
+				// if(t[objectTokIndex[num]].type == JSMN_OBJECT && t[objectTokIndex[num]].size > 0){
+				// 	printf("%d", (t[objectTokIndex[num]+i].start - t[objectTokIndex[num]+(i-1)].start) - 1);
+				// 	printf("[%.*s]", (t[objectTokIndex[num]+i].start - t[objectTokIndex[num]+(i-1)].start) - 1, jsonstr + t[objectTokIndex[num]+(i-1)].start + 5);
+				// }
+				// // printf("%.*s\n", t[objectTokIndex[num+1]].end - t[objectTokIndex[num]].start, jsonstr + t[objectTokIndex[num]-1].start);
+				// i++;
+				// printf("\n");
+
+			}
+		}
+	}
 }
 
 
@@ -252,22 +316,22 @@ int main() {
 	// selectNameList(string, t, array);
 
 	//Example 7
-	//jsonNameList(string, t, r, array);
+	// jsonNameList(string, t, r, array);
 	// printNameList(string, t, array);
 	// selectNameList(string, t, array);
 
 	// Example 8
-	// object 정보를 입력받기 위한 array
-	//
-	// int objectArray[20];
-	//
-	// jsonObjectList(string, t, r, objectArray);
-	// printObjectValue(string, t, r, objectArray);
+	// jsonObjectList(string, t, r, array);
 
-	int objectTokIndex[100];
-	int dataTokIndex[100];
-	jsonObjectList(string, t, r, objectTokIndex);
-
+	// Example 9
+	/*
+	1. malloc  assert, realloc,  free (t[i].size)
+	2. print
+	*/
+	int object[20];
+	int value[100];
+	jsonObjectList(string, t, r, object, value);
+	selectObject(string, t, r,object, value);
 
 	return EXIT_SUCCESS;
 }
