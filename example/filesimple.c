@@ -22,24 +22,50 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 
 // read txt file(json file)
 // edit here to change reading data.json file
-char* readJSONFile(){
-	char* JSON_STRING;
-	char oneline[255];
+//
+// char* readJSONFile(){
+// 	char* JSON_STRING;
+// 	char oneline[255];
+// 	int count = 0;
+//
+// 	FILE *fp;
+// 	fp = fopen("data3.json", "r");
+//
+// 	while(1){
+// 		fgets(oneline, 255, fp);
+// 		if(feof(fp)) break;
+// 		count = count + strlen(oneline) + 1;
+// 		JSON_STRING = (char*)realloc(JSON_STRING, count*sizeof(char));
+// 		strcat(JSON_STRING, oneline);
+// 	}
+// 	return JSON_STRING;
+// }
+
+// read txt file upgrade (Example 12 ~ )
+char *readJSONFile(){
 	int count = 0;
+	char oneline[255];
+	char fileName[200];
+	char *JSON_STRING = (char*)malloc(sizeof(char));
 
-	FILE *fp;
-	fp = fopen("data3.json", "r");
+	printf("파일명 입력 (확장자명 제외) : ");
+	scanf("%s", fileName);		//
+	strcat(fileName, ".json");
 
-	while(1){
-		fgets(oneline, 255, fp);
-		if(feof(fp)) break;
-		count = count + strlen(oneline) + 1;
-		JSON_STRING = (char*)realloc(JSON_STRING, count*sizeof(char));
-		strcat(JSON_STRING, oneline);
+	FILE *fp = fopen(fileName, "r");
+	if(fp == NULL){
+		printf("%s 파일이 존재하지 않습니다.\n", fileName);
+		return NULL;
 	}
-	return JSON_STRING;
+	while(1){
+			fgets(oneline, 255, fp);
+			if(feof(fp)) break;
+			count = count + strlen(oneline) + 1;
+			JSON_STRING = (char*)realloc(JSON_STRING, count*sizeof(char));
+			strcat(JSON_STRING, oneline);
+		}
+		return JSON_STRING;
 }
-
 // Example 4
 // void jsonNameList(char *jsonstr, jsmntok_t *t, int tokcount){
 // 	int num = 1;
@@ -296,76 +322,154 @@ char* readJSONFile(){
 // }
 
 // Example 11
-void jsonList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex,
-	 int *objectTokIndex){
+// void jsonList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex,
+// 	 int *objectTokIndex){
+//
+// 	int i = 1, nameCount = 1;
+//
+// 	for(i = 1; i < tokcount; i++){
+// 		if(t[i].type == JSMN_STRING && t[i].size > 0){
+// 			nameTokIndex[nameCount] = i;
+// 			nameCount++;
+// 		}
+// 	}
+// 	nameTokIndex[0] = nameCount - 1;
+//
+// 	int objectCount = 1;
+// 	int object;
+//
+// 	for(i = 1; i < tokcount; i++){
+// 		if(t[i].type == JSMN_OBJECT){
+// 			objectTokIndex[objectCount] = i;
+// 			objectCount++;
+// 		}
+// 	}
+// 	objectTokIndex[0] = objectCount - 1;
+// }
+//
+// void printList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex,
+// 		int *objectTokIndex){
+//
+// 	int i = 1;
+// 	int j = 1;
+//
+// 	printf("****** Name List ******\n");
+//
+// 	while(i <= nameTokIndex[0]){
+// 		printf("[NAME%2d] %.*s\n", i, t[nameTokIndex[i]].end - t[nameTokIndex[i]].start,
+// 		jsonstr + t[nameTokIndex[i]].start);
+//  		i++;
+//  	}
+//
+//  	printf("\n****** Object List ******\n");
+//  	while(j <= objectTokIndex[0]){
+//  		printf("[Object%2d] %.*s\n", j, t[objectTokIndex[j]+2].end - t[objectTokIndex[j]+2].start,
+// 		jsonstr + t[objectTokIndex[j]+2].start);
+// 		j++;
+// 	}
+// 	printf("\n");
+// }
+//
+// void printselectList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex, int *objectTokIndex){
+// 	int num;
+//
+// 	while(1){
+// 		printf("원하는 번호 입력 (Exit:0) : ");
+// 		scanf("%d", &num);
+//
+// 		if(num <= objectTokIndex[0] && num > 0){
+// 		printf("%.*s : %.*s\n", t[objectTokIndex[num]+1].end - t[objectTokIndex[num]+1].start, jsonstr + t[objectTokIndex[num]+1].start,
+// 			 t[objectTokIndex[num]+2].end - t[objectTokIndex[num]+2].start, jsonstr + t[objectTokIndex[num]+2].start);
+//
+// 			int i = num;
+// 			int j = 2;
+// 			while(t[nameTokIndex[i]+j].start < t[objectTokIndex[i]].end){
+// 				printf("\t[%.*s]%.*s\n", t[nameTokIndex[i]+j].end - t[nameTokIndex[i]+j].start, jsonstr + t[nameTokIndex[i]+j].start,
+// 				 t[nameTokIndex[i]+j+1].end - t[nameTokIndex[i]+j+1].start, jsonstr + t[nameTokIndex[i]+j+1].start);
+// 				j = j + 2;
+// 			}
+// 		}
+// 		else if(num == 0) break;		// quit comdition
+// 		else printf("No object\n");		// objectTokIndex의 범위를 넘어간 condition
+//
+// 	}
+// }
 
-	int i = 1, nameCount = 1;
-	int name;
+// Example 12
+// void jsonList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex,
+// 	 int *objectTokIndex){
+//
+// 	int i = 1, nameCount = 1;
+// 	int initial;
+//
+// 	for(i = 1; t[i].type != JSMN_ARRAY; i++){
+// 		initial = i + 1;		// ARRAY 다음 토큰부터 저장하기 위한 변수
+// 	}
+// 	for(i = initial; i < tokcount; i++){
+// 		if(t[i].type == JSMN_STRING && t[i].size > 0){
+// 			nameTokIndex[nameCount] = i;
+// 			nameCount++;
+// 		}
+// 	}
+// 	nameTokIndex[0] = nameCount - 1;
+//
+// 	int objectCount = 1;
+// 	int object;
+//
+// 	for(i = initial; i < tokcount; i++){
+// 		if(t[i].type == JSMN_OBJECT){
+// 			objectTokIndex[objectCount] = i;
+// 			objectCount++;
+// 		}
+// 	}
+// 	objectTokIndex[0] = objectCount - 1;
+// }
+//
+// void printList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex, int *objectTokIndex){
+// 	int i = 1;
+// 	int j = 1;
+//
+// 	printf("****** Name List ******\n");
+// 	while(i <= nameTokIndex[0]){
+// 		printf("[NAME%2d] %.*s\n", i, t[nameTokIndex[i]].end - t[nameTokIndex[i]].start,
+// 		jsonstr + t[nameTokIndex[i]].start);
+// 		i++;
+// 	}
+//
+// 	printf("\n****** Object List ******\n");
+// 	while(j <= objectTokIndex[0]){
+// 		printf("[Object%2d] %.*s\n", j, t[objectTokIndex[j]+2].end - t[objectTokIndex[j]+2].start,
+// 		jsonstr + t[objectTokIndex[j]+2].start);
+// 		j++;
+// 	}
+// 	printf("\n");
+// }
+//
+// void printselectList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex, int *objectTokIndex){
+// 	int num;
+//
+// 	while(1){
+// 		printf("원하는 번호 입력 (Exit:0) : ");
+// 		scanf("%d", &num);
+//
+// 		if(num <= objectTokIndex[0] && num > 0){
+// 		printf("%.*s : %.*s\n", t[objectTokIndex[num]+1].end - t[objectTokIndex[num]+1].start, jsonstr + t[objectTokIndex[num]+1].start,
+// 			 t[objectTokIndex[num]+2].end - t[objectTokIndex[num]+2].start, jsonstr + t[objectTokIndex[num]+2].start);
+//
+// 			int i = num;
+// 			int j = 2;
+// 			while(t[nameTokIndex[i]+j].start < t[objectTokIndex[i]].end){
+// 				printf("\t[%.*s]%.*s\n", t[nameTokIndex[i]+j].end - t[nameTokIndex[i]+j].start, jsonstr + t[nameTokIndex[i]+j].start,
+// 				 t[nameTokIndex[i]+j+1].end - t[nameTokIndex[i]+j+1].start, jsonstr + t[nameTokIndex[i]+j+1].start);
+// 				j = j + 2;
+// 			}
+// 		}
+// 		else if(num == 0) break;		// quit comdition
+// 		else printf("No object\n");		// objectTokIndex의 범위를 넘어간 condition
+// 	}
+// }
 
-	for(i = 1; i < tokcount; i++){
-		if(t[i].type == JSMN_STRING && t[i].size > 0){
-			nameTokIndex[nameCount] = i;
-			nameCount++;
-		}
-	}
-	nameTokIndex[0] = nameCount - 1;
-
-	int objectCount = 1;
-	int object;
-
-	for(i = 1; i < tokcount; i++){
-		if(t[i].type == JSMN_OBJECT){
-			objectTokIndex[objectCount] = i;
-			objectCount++;
-		}
-	}
-	objectTokIndex[0] = objectCount - 1;
-}
-
-void printList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex,
-		int *objectTokIndex){
-
-	int i = 1;
-	int j = 1;
-
-	printf("****** Name List ******\n");
-
-	while(i <= nameTokIndex[0]){
-		printf("[NAME%2d] %.*s\n", i, t[nameTokIndex[i]].end - t[nameTokIndex[i]].start, jsonstr + t[nameTokIndex[i]].start);
- 		i++;
- 	}
-
- 	printf("\n****** Object List ******\n");
- 	while(j <= objectTokIndex[0]){
- 		printf("[NAME %d] %.*s\n", j, t[objectTokIndex[j]+2].end - t[objectTokIndex[j]+2].start, jsonstr + t[objectTokIndex[j]+2].start);
-		j++;
-	}
-	printf("\n");
-}
-
-void printselectList(char *jsonstr, jsmntok_t *t, int tokcount, int *nameTokIndex, int *objectTokIndex){
-	int num;
-
-	while(1){
-		printf("원하는 번호 입력 (Exit:0) : ");
-		scanf("%d", &num);
-
-		if(num <= objectTokIndex[0] && num > 0){
-		printf("%.*s : %.*s\n", t[objectTokIndex[num]+1].end - t[objectTokIndex[num]+1].start, jsonstr + t[objectTokIndex[num]+1].start,
-			 t[objectTokIndex[num]+2].end - t[objectTokIndex[num]+2].start, jsonstr + t[objectTokIndex[num]+2].start);
-
-			int i = num;
-			int j = 2;
-			while(t[nameTokIndex[i]+j].start < t[objectTokIndex[i]].end){
-				printf("\t[%.*s]%.*s\n", t[nameTokIndex[i]+j].end - t[nameTokIndex[i]+j].start, jsonstr + t[nameTokIndex[i]+j].start,
-				 t[nameTokIndex[i]+j+1].end - t[nameTokIndex[i]+j+1].start, jsonstr + t[nameTokIndex[i]+j+1].start);
-				j = j + 2;
-			}
-		}
-		else if(num == 0) break;
-		else printf("No object\n");
-	}
-}
+// Example 13
 
 // Example 15
 typedef enum{
@@ -394,6 +498,7 @@ int main() {
 
 	string = (char*)malloc(sizeof(readJSONFile())+1);
 	string = readJSONFile();
+	if(string == NULL) return EXIT_SUCCESS;
 	//puts(string);
 
 	int i;
@@ -413,7 +518,6 @@ int main() {
 	/* Assume the top-level element is an object */
 	if (r < 1 || t[0].type != JSMN_OBJECT) {
 		printf("Object expected\n");
-
 	}
 
 	// Example 3
@@ -484,10 +588,15 @@ int main() {
 	 // printselectList(string, t, r, object);
 
 	 // Example 11
+	 // jsonList(string, t, r, name, object);
+	 // printList(string, t, r, name, object);
+	 // printselectList(string, t, r, name, object);
+
+	 // Example 12
 	 jsonList(string, t, r, name, object);
 	 printList(string, t, r, name, object);
 	 printselectList(string, t, r, name, object);
 
-
+	 free(string);
 	return EXIT_SUCCESS;
 }
